@@ -21,14 +21,21 @@ namespace WebBook.Areas.Admin.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly FreeBookDbContext _context;
 
-        public AccountsController(RoleManager<IdentityRole> roleManager,
-            UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager ,FreeBookDbContext context)
+        public AccountsController(
+            RoleManager<IdentityRole> roleManager,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
+            FreeBookDbContext context)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
         }
+
+
+
+        #region Role
 
         public IActionResult Roles()
         {
@@ -53,14 +60,14 @@ namespace WebBook.Areas.Admin.Controllers
                     Name = model.NewRole.RoleName
                 };
                 // Create
-                if(role.Id == null)
+                if (role.Id == null)
                 {
                     role.Id = Guid.NewGuid().ToString();
                     var result = await _roleManager.CreateAsync(role);
                     if (result.Succeeded)
                     {
                         // Succeeded
-                        HttpContext.Session.SetString("msgType","success");
+                        HttpContext.Session.SetString("msgType", "success");
                         HttpContext.Session.SetString("title", Resource.ResourceWeb.lbSave);
                         HttpContext.Session.SetString("msg", Resource.ResourceWeb.lbSaveMsgRole);
                     }
@@ -72,10 +79,11 @@ namespace WebBook.Areas.Admin.Controllers
                         HttpContext.Session.SetString("msg", Resource.ResourceWeb.lbNotSavedMsgRole);
                     }
 
-                }//Update
+                }
+                //Update
                 else
                 {
-                    var RoleUpdate =await _roleManager.FindByIdAsync(role.Id);
+                    var RoleUpdate = await _roleManager.FindByIdAsync(role.Id);
                     RoleUpdate.Id = model.NewRole.RoleId;
                     RoleUpdate.Name = model.NewRole.RoleName;
                     var Result = await _roleManager.UpdateAsync(RoleUpdate);
@@ -100,13 +108,17 @@ namespace WebBook.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteRole(string Id)
         {
             var role = _roleManager.Roles.FirstOrDefault(x => x.Id == Id);
-            if((await _roleManager.DeleteAsync(role)).Succeeded)
+            if ((await _roleManager.DeleteAsync(role)).Succeeded)
             {
                 return RedirectToAction(nameof(Roles));
             }
             return RedirectToAction("Roles");
         }
 
+
+        #endregion
+
+        #region  Registers
         public IActionResult Registers()
         {
             var model = new RegisterViewModel
@@ -128,7 +140,7 @@ namespace WebBook.Areas.Admin.Controllers
                 if (file.Count() > 0)
                 {
                     string ImageName = Guid.NewGuid().ToString() + Path.GetExtension(file[0].FileName);
-                    var fileStream = new FileStream(Path.Combine(@"wwwroot/",Helper.PathSaveImageuser,ImageName),FileMode.Create);
+                    var fileStream = new FileStream(Path.Combine(@"wwwroot/", Helper.PathSaveImageuser, ImageName), FileMode.Create);
                     file[0].CopyTo(fileStream);
                     model.NewRegister.ImageUser = ImageName;
                 }
@@ -139,21 +151,21 @@ namespace WebBook.Areas.Admin.Controllers
                 var user = new ApplicationUser
                 {
                     Id = model.NewRegister.Id,
-                    Name = model.NewRegister.Name,  
+                    Name = model.NewRegister.Name,
                     UserName = model.NewRegister.Email,
                     Email = model.NewRegister.Email,
                     ActiveUser = model.NewRegister.ActiveUser,
                     ImageUser = model.NewRegister.ImageUser
                 };
-                if(user.Id == null)
+                if (user.Id == null)
                 {
                     //Craete
                     user.Id = Guid.NewGuid().ToString();
-                  var result = await _userManager.CreateAsync(user,model.NewRegister.Password);
+                    var result = await _userManager.CreateAsync(user, model.NewRegister.Password);
                     if (result.Succeeded)
                     {
                         //Succsseded
-                        var Role =await _userManager.AddToRoleAsync(user,model.NewRegister.RoleName);
+                        var Role = await _userManager.AddToRoleAsync(user, model.NewRegister.RoleName);
                         if (Role.Succeeded)
                         {
                             HttpContext.Session.SetString("msgType", "success");
@@ -179,7 +191,7 @@ namespace WebBook.Areas.Admin.Controllers
                 else
                 {
                     //Update
-                    var userUpdate =await _userManager.FindByIdAsync(user.Id);
+                    var userUpdate = await _userManager.FindByIdAsync(user.Id);
                     userUpdate.Id = model.NewRegister.Id;
                     userUpdate.Name = model.NewRegister.Name;
                     userUpdate.UserName = model.NewRegister.Email;
@@ -187,12 +199,12 @@ namespace WebBook.Areas.Admin.Controllers
                     userUpdate.ActiveUser = model.NewRegister.ActiveUser;
                     userUpdate.ImageUser = model.NewRegister.ImageUser;
 
-                    var result =await _userManager.UpdateAsync(userUpdate);
+                    var result = await _userManager.UpdateAsync(userUpdate);
                     if (result.Succeeded)
                     {
                         var oldRole = await _userManager.GetRolesAsync(userUpdate);
-                        await _userManager.RemoveFromRolesAsync(userUpdate,oldRole);
-                        var AddRole =await _userManager.AddToRoleAsync(userUpdate,model.NewRegister.RoleName);
+                        await _userManager.RemoveFromRolesAsync(userUpdate, oldRole);
+                        var AddRole = await _userManager.AddToRoleAsync(userUpdate, model.NewRegister.RoleName);
                         if (AddRole.Succeeded)
                         {
                             HttpContext.Session.SetString("msgType", "success");
@@ -216,20 +228,20 @@ namespace WebBook.Areas.Admin.Controllers
                 }
                 return RedirectToAction("Registers", "Accounts");
             }
-            return RedirectToAction("Registers","Accounts");
+            return RedirectToAction("Registers", "Accounts");
         }
 
         public async Task<IActionResult> DeleteUser(string userId)
         {
-            var User = _userManager.Users.FirstOrDefault(x=>x.Id == userId);
+            var User = _userManager.Users.FirstOrDefault(x => x.Id == userId);
 
-            if(User.ImageUser != null && User.ImageUser != Guid.Empty.ToString())
+            if (User.ImageUser != null && User.ImageUser != Guid.Empty.ToString())
             {
                 var PathImage = Path.Combine(@"wwwroot/", Helper.PathImageuser, User.ImageUser);
                 if (System.IO.File.Exists(PathImage))
                     System.IO.File.Delete(PathImage);
             }
-           if(( await _userManager.DeleteAsync(User)).Succeeded)
+            if ((await _userManager.DeleteAsync(User)).Succeeded)
             {
                 return RedirectToAction("Registers", "Accounts");
             }
@@ -240,11 +252,11 @@ namespace WebBook.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(RegisterViewModel model)
         {
-            var user =await _userManager.FindByIdAsync(model.ChangePassword.Id);
-            if(user != null)
+            var user = await _userManager.FindByIdAsync(model.ChangePassword.Id);
+            if (user != null)
             {
                 await _userManager.RemovePasswordAsync(user);
-                var AddNewPassword = await _userManager.AddPasswordAsync(user,model.ChangePassword.NewPassword);
+                var AddNewPassword = await _userManager.AddPasswordAsync(user, model.ChangePassword.NewPassword);
                 if (AddNewPassword.Succeeded)
                 {
                     HttpContext.Session.SetString("msgType", "success");
@@ -264,7 +276,9 @@ namespace WebBook.Areas.Admin.Controllers
             return RedirectToAction(nameof(Registers));
 
         }
+        #endregion
 
+        #region Login
         public IActionResult Login()
         {
             return View();
@@ -272,12 +286,12 @@ namespace WebBook.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login (LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var Result = await _signInManager.PasswordSignInAsync(model.Eamil,
-                    model.Password,model.RememberMy,false);
+                    model.Password, model.RememberMy, false);
                 if (Result.Succeeded)
                     return RedirectToAction("Index", "Home");
                 else
@@ -286,6 +300,8 @@ namespace WebBook.Areas.Admin.Controllers
             }
             return View(model);
         }
+
+        #endregion
 
     }
 }

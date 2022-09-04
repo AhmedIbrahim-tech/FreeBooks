@@ -53,9 +53,12 @@
                                             @switch (@item.Name)
                                             {
                                                 case "SupperAdmin":
+                                                case "Supper Admin":
+                                                case "super admin" :
                                                     <span class="badge badge-danger" style="width:250px; height:25px">@item.Name</span>
                                                     break;
                                                 case "Admin":
+                                                case "admin":
                                                     <span class="badge badge-success" style="width:250px; height:25px">@item.Name</span>
                                                     break;
                                                 default:
@@ -142,6 +145,8 @@
                 });
             </script>
         }
+
+        // This's Line is Important due to Must Make msgType is Empty due to if do this's code again
         Context.Session.SetString("msgType", "");
     }
 

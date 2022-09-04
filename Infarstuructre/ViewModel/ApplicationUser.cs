@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Infarstuructre.ViewModel
 {
-   public class ApplicationUser:IdentityUser
+   public class ApplicationUser : IdentityUser
     {
         public string Name { get; set; }
         public string ImageUser { get; set; }

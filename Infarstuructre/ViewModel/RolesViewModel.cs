@@ -17,7 +17,7 @@ namespace Infarstuructre.ViewModel
     public class NewRole
     {
         public string RoleId { get; set; }
-        [Required(ErrorMessageResourceType =typeof(ResourceData),ErrorMessageResourceName = "RoleName")]
+        [Required(ErrorMessageResourceType = typeof(ResourceData),ErrorMessageResourceName = "RoleName")]
         public string RoleName { get; set; }
     }
 }
