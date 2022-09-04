@@ -1,6 +1,8 @@
 ﻿$(document).ready(function () {
     $('#tableRole').DataTable();
 });
+
+
 function Delete(id) {
     Swal.fire({
         title: 'هل انتا متأكد ؟',

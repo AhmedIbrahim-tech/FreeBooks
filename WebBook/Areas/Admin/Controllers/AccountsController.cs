@@ -4,6 +4,7 @@ using Infarstuructre.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,12 +32,15 @@ namespace WebBook.Areas.Admin.Controllers
 
         public IActionResult Roles()
         {
-            return View(new RolesViewModel
+            var RoleModel = new RolesViewModel
             {
                 NewRole = new NewRole(),
                 Roles = _roleManager.Roles.OrderBy(x => x.Name).ToList()
-            });
+
+            };
+            return View(RoleModel);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Roles(RolesViewModel model)
